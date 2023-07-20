@@ -1,0 +1,23 @@
+{
+  "name": "qpay",
+  "version": "1.0.0",
+  "description": "QPay API integration",
+  "main": "index.js",
+  "scripts": {},
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mnmonherdene1234/qpay.git"
+  },
+  "keywords": [
+    "qpay"
+  ],
+  "author": "mnmonherdene",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/mnmonherdene1234/qpay/issues"
+  },
+  "homepage": "https://github.com/mnmonherdene1234/qpay#readme",
+  "devDependencies": {
+    "typescript": "^5.1.6"
+  }
+}
