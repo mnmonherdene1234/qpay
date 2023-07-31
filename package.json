@@ -2,8 +2,18 @@
   "name": "qpay",
   "version": "1.0.0",
   "description": "QPay API integration",
-  "main": "index.js",
-  "scripts": {},
+  "main": "dist/main.js",
+  "types": "dist/main.d.ts",
+  "author": "mnmonherdene",
+  "license": "MIT",
+  "files": [
+    "dist/**/*"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "pub": "npm version patch --force && npm publish",
+    "test": "jest --config jestconfig.json"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/mnmonherdene1234/qpay.git"
@@ -11,13 +21,17 @@
   "keywords": [
     "qpay"
   ],
-  "author": "mnmonherdene",
-  "license": "ISC",
   "bugs": {
     "url": "https://github.com/mnmonherdene1234/qpay/issues"
   },
   "homepage": "https://github.com/mnmonherdene1234/qpay#readme",
   "devDependencies": {
+    "@types/jest": "^29.5.3",
+    "jest": "^29.6.2",
+    "ts-jest": "^29.1.1",
     "typescript": "^5.1.6"
+  },
+  "dependencies": {
+    "axios": "^1.4.0"
   }
 }

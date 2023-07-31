@@ -1,0 +1,31 @@
+import { QPayLine } from "./line";
+
+export type QPayGetInvoiceResponse = {
+  invoice_id: string;
+  invoice_status: "OPEN" | "CLOSED";
+  sender_invoice_no: string;
+  sender_branch_code: string;
+  sender_branch_data: string;
+  sender_staff_code: string;
+  sender_staff_data: string;
+  sender_terminal_code: string;
+  sender_terminal_data: string;
+  invoice_description: string;
+  invoice_due_date: string;
+  enable_expiry: boolean;
+  expiry_date: string;
+  allow_partial: boolean;
+  minimum_amount: number;
+  allow_exceed: boolean;
+  maximum_amount: string;
+  total_amount: string;
+  gross_amount: string;
+  tax_amount: string;
+  surcharge_amount: string;
+  discount_amount: string;
+  callback_url: string;
+  note: string;
+  lines: QPayLine[];
+  transactions: any[];
+  inputs: any[];
+};
