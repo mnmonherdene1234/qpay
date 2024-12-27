@@ -12,7 +12,8 @@
   "scripts": {
     "build": "tsc",
     "pub": "npm version patch --force && npm publish",
-    "test": "jest --config jestconfig.json"
+    "test": "jest --config jestconfig.json",
+    "upgrade": "npx npm-check-updates -u && npm i --force && npm run build"
   },
   "repository": {
     "type": "git",
@@ -26,12 +27,12 @@
   },
   "homepage": "https://github.com/mnmonherdene1234/qpay#readme",
   "devDependencies": {
-    "@types/jest": "^29.5.3",
-    "jest": "^29.6.2",
-    "ts-jest": "^29.1.1",
-    "typescript": "^5.1.6"
+    "@types/jest": "^29.5.14",
+    "jest": "^29.7.0",
+    "ts-jest": "^29.2.5",
+    "typescript": "^5.7.2"
   },
   "dependencies": {
-    "axios": "^1.4.0"
+    "axios": "^1.7.9"
   }
 }
