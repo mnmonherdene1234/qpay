@@ -13,19 +13,23 @@ test("getInstance", async () => {
   expect(QPay.getInstance()).toBeInstanceOf(QPay);
 });
 
-test("Create invoice", async () => {
+let createdInvoiceID = "";
+
+test("createInvoice", async () => {
   const invoiceResponse = await qpay.createInvoice({
-    amount: 10,
+    amount: 500,
     callback_url: "https://order-paid-url.com",
-    invoice_description: "TEST",
-    invoice_receiver_code: "TEST",
-    sender_invoice_no: "TEST",
+    invoice_description: "Гүйлгээний утга",
+    invoice_receiver_code: "12345678",
+    sender_invoice_no: "34",
   });
+
+  createdInvoiceID = invoiceResponse.data.invoice_id;
 
   expect(invoiceResponse.status).toBe(200);
 }, 10000);
 
-test("Get Invoice", async () => {
-  const invoice = await qpay.getInvoice("a79715cb-1129-470e-a005-310614799124");
+test("getInvoice", async () => {
+  const invoice = await qpay.getInvoice(createdInvoiceID);
   expect(invoice.status).toBe(200);
 }, 10000);
