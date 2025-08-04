@@ -1,6 +1,6 @@
 {
   "name": "qpay",
-  "version": "2.0.1",
+  "version": "2.0.2",
   "description": "QPay API integration",
   "main": "dist/main.js",
   "types": "dist/main.d.ts",
