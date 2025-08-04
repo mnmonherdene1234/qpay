@@ -1,6 +1,6 @@
 # QPay API Integration
 
-Монгол банкны QPay систем дээр нэхэмжлэх үүсгэх болон мэдээлэл татах TypeScript/JavaScript сан. Энэ сан нь автомат токен менежмент, алдаа барих, refresh token хийдэг.
+QPay системийн API-д зориулсан TypeScript/JavaScript сан. Автомат токен менежмент, refresh token ашиглалт зэрэг боломжуудыг агуулсан.
 
 ## Онцлогууд
 
