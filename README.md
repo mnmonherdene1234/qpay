@@ -248,3 +248,6 @@ const response: QPayCreateInvoiceResponse = await qpay.createInvoice(
 - **Rate limiting**: QPay API-д хязгаарлалт байж болохыг анхаарна уу.
 
 - **Callback URL**: Production орчинд HTTPS ашиглаж, callback URL-г зөв тохируулна уу.
+
+Go хэл дээр QPay API ашиглахыг хүсвэл дараах санг ашиглаж болно:  
+[https://github.com/mnmonherdene1234/qpaygo](https://github.com/mnmonherdene1234/qpaygo)
