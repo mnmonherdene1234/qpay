@@ -1,0 +1,3 @@
+export const invoiceCode = "INVOICE_CODE_HERE";
+export const password = "PASSWORD_HERE";
+export const username = "USERNAME_HERE";

@@ -12,6 +12,8 @@
   "scripts": {
     "build": "tsc",
     "pub": "npm version patch --force && npm publish",
+    "pub:major": "npm version major --force && npm publish",
+    "pub:minor": "npm version minor --force && npm publish",
     "test": "jest --config jestconfig.json",
     "upgrade": "npx npm-check-updates -u && npm i --force && npm run build"
   },
