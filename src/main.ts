@@ -14,9 +14,13 @@ import {
 class QPay {
   // API-ийн тохиргоо болон нэвтрэх мэдээлэл
   private static readonly host = "https://merchant.qpay.mn";
+  private static readonly TWO_HOURS_IN_MS = 2 * 60 * 60 * 1000; // Константыг class түвшинд зарлах
+
   private username = "";
   private password = "";
   private invoiceCode = "";
+  private tokenRefreshPromise: Promise<void> | null = null; // Token refresh давхцахаас сэргийлэх
+
   accessToken = "";
   refreshToken = "";
   expiresIn: Date | null = null;
@@ -32,36 +36,48 @@ class QPay {
     this.invoiceCode = invoice_code;
   }
 
+  /**
+   * Access token дуусах дөхсөн эсэхийг шалгана.
+   * Token дуусахаас 2 цагийн өмнө дуусна гэж үзнэ.
+   */
   isAccessTokenExpired(): boolean {
     if (!this.expiresIn) return true;
-    return Date.now() > this.expiresIn.getTime();
+    return Date.now() > this.expiresIn.getTime() - QPay.TWO_HOURS_IN_MS;
   }
 
+  /**
+   * Refresh token дуусах дөхсөн эсэхийг шалгана.
+   * Token дуусахаас 2 цагийн өмнө дуусна гэж үзнэ.
+   */
   isRefreshTokenExpired(): boolean {
     if (!this.refreshExpiresIn) return true;
-    return Date.now() > this.refreshExpiresIn.getTime();
+    return Date.now() > this.refreshExpiresIn.getTime() - QPay.TWO_HOURS_IN_MS;
   }
 
-  handleTokenResponse(response: QPayTokenResponse) {
+  /**
+   * Token response өгөгдлийг боловсруулж, class instance-д хадгална.
+   */
+  private handleTokenResponse(response: QPayTokenResponse): void {
     this.accessToken = response.access_token;
-    this.expiresIn = new Date(response.expires_in * 1000);
     this.refreshToken = response.refresh_token;
+
+    // QPay API нь expires_in болон refresh_expires_in-г Unix timestamp-аар өгдөг
+    // Timestamp нь секундээр байгаа тул миллисекунд руу хөрвүүлнэ
+    this.expiresIn = new Date(response.expires_in * 1000);
     this.refreshExpiresIn = new Date(response.refresh_expires_in * 1000);
   }
 
   /**
    * QPay API-аас шинэ нэвтрэх токен авна.
    */
-  async generateAuthToken() {
-    // Хэрэглэгчийн нэр, нууц үгийг ашиглан Basic Authentication толгой үүсгэнэ.
+  async generateAuthToken(): Promise<void> {
     const authHeader = `Basic ${Buffer.from(
       `${this.username}:${this.password}`
     ).toString("base64")}`;
 
-    // Токен авах хүсэлтийг илгээнэ.
     const response = await axios.post<QPayTokenResponse>(
       `${QPay.host}/v2/auth/token`,
-      undefined, // Токен авах хүсэлтэд бие шаардлагагүй.
+      undefined,
       {
         headers: {
           "Content-Type": "application/json",
@@ -70,86 +86,80 @@ class QPay {
       }
     );
 
-    if (
-      response.status !== 200 ||
-      !response.data ||
-      !response.data.access_token
-    ) {
-      throw new Error("Токен үүсгэх амжилтгүй боллоо. Хариу буруу байна.");
-    }
-
     this.handleTokenResponse(response.data);
   }
 
   /**
    * Refresh token ашиглан шинэ access token авна.
    */
-  async refreshAuthToken() {
-    // Хүсэлтийн тохиргоог бэлтгэнэ.
-    const config: AxiosRequestConfig = {
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${this.refreshToken}`,
-      },
-    };
-
+  async refreshAuthToken(): Promise<void> {
     const response = await axios.post<QPayTokenResponse>(
       `${QPay.host}/v2/auth/refresh`,
       undefined,
-      config
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${this.refreshToken}`,
+        },
+      }
     );
-
-    if (
-      response.status !== 200 ||
-      !response.data ||
-      !response.data.access_token
-    ) {
-      throw new Error("Токен шинэчлэлт амжилтгүй боллоо. Хариу буруу байна.");
-    }
 
     this.handleTokenResponse(response.data);
   }
 
-  async checkAuth() {
-    // Хэрэв access token хүчинтэй бол ямар ч үйлдэл хийхгүй.
+  /**
+   * Token-ий хүчинтэй эсэхийг шалгаж, шаардлагатай бол шинэчилнэ.
+   * Олон дуудлага зэрэг орох үед давхцахаас сэргийлнэ.
+   */
+  private async checkAuth(): Promise<void> {
+    // Хэрэв access token хүчинтэй бол шалгах шаардлагагүй
     if (!this.isAccessTokenExpired()) {
       return;
     }
 
-    // Хэрэв refresh token хүчинтэй бол шинэ токен авна.
-    if (!this.isRefreshTokenExpired()) {
-      try {
-        await this.refreshAuthToken();
-      } catch (error) {
-        console.error(
-          "Refresh token failed, generating new auth token.",
-          error
-        );
-        this.generateAuthToken();
-      }
+    // Хэрэв өөр process token refresh хийж байвал түүнийг хүлээх
+    if (this.tokenRefreshPromise) {
+      await this.tokenRefreshPromise;
       return;
     }
 
-    // Хэрэв refresh token ч хүчинтэй биш бол шинэ токен авах шаардлагатай.
-    await this.generateAuthToken();
+    // Token refresh эхлүүлэх
+    this.tokenRefreshPromise = (async () => {
+      try {
+        // Хэрэв refresh token хүчинтэй бол түүгээр шинэчилнэ
+        if (!this.isRefreshTokenExpired()) {
+          try {
+            await this.refreshAuthToken();
+          } catch (error) {
+            // Refresh амжилтгүй бол шинээр нэвтрэх
+            await this.generateAuthToken();
+          }
+        } else {
+          // Refresh token дууссан бол шинээр нэвтрэх
+          await this.generateAuthToken();
+        }
+      } finally {
+        // Дууссаны дараа promise-ийг цэвэрлэх
+        this.tokenRefreshPromise = null;
+      }
+    })();
+
+    await this.tokenRefreshPromise;
   }
 
   /**
    * QPay API руу эрх бүхий HTTP хүсэлт илгээнэ.
-   * Токен авах болон эрхийн толгойг автоматаар зохицуулна.
-   * @param endpointUrl - API-ийн endpoint.
-   * @param method - HTTP method (get, post, put, delete).
-   * @param data - POST болон PUT хүсэлтүүдийн нэмэлт мэдээлэл.
+   * @param endpointUrl - API-ийн endpoint (жишээ: "/v2/invoice")
+   * @param method - HTTP method (get, post, put, delete)
+   * @param data - Хүсэлтийн body (POST/PUT-д шаардлагатай)
    */
-  async sendRequestWithAuth<T>(
+  private async sendRequestWithAuth<T>(
     endpointUrl: string,
     method: "get" | "post" | "put" | "delete",
     data?: any
   ) {
-    // Хүчинтэй токен байгаа эсэхийг шалгана.
     await this.checkAuth();
 
-    // Хүсэлтийн тохиргоог бэлтгэнэ.
     const config: AxiosRequestConfig = {
       headers: {
         "Content-Type": "application/json",
@@ -157,9 +167,8 @@ class QPay {
       },
     };
 
-    const fullUrl = QPay.host + endpointUrl;
+    const fullUrl = `${QPay.host}${endpointUrl}`;
 
-    // HTTP аргын дагуу тохирох хүсэлтийг илгээнэ.
     switch (method) {
       case "get":
         return axios.get<T>(fullUrl, config);
@@ -169,33 +178,34 @@ class QPay {
         return axios.put<T>(fullUrl, data, config);
       case "delete":
         return axios.delete<T>(fullUrl, config);
-      default:
-        throw new Error("Буруу HTTP арга өгөгдсөн байна.");
     }
   }
 
   /**
    * QPay системд шинэ нэхэмжлэх үүсгэнэ.
-   * @param qpayInvoice - Үүсгэх нэхэмжлэхийн дэлгэрэнгүй мэдээлэл.
+   * @param qpayInvoice - Үүсгэх нэхэмжлэхийн мэдээлэл
+   * @returns Үүсгэсэн нэхэмжлэхийн мэдээлэл
    */
   async createInvoice(qpayInvoice: QPayCreateInvoice) {
-    // Нэхэмжлэхийн кодыг өгөгдөлд нэмнэ.
-    qpayInvoice.invoice_code = this.invoiceCode;
+    // Өгөгдлийг мутацлахгүйн тулд хуулбар үүсгэх
+    const invoiceData = {
+      ...qpayInvoice,
+      invoice_code: this.invoiceCode,
+    };
 
-    // Нэхэмжлэх үүсгэх хүсэлтийг илгээнэ.
     return this.sendRequestWithAuth<QPayCreateInvoiceResponse>(
       "/v2/invoice",
       "post",
-      qpayInvoice
+      invoiceData
     );
   }
 
   /**
-   * Нэхэмжлэхийн ID-аар нэхэмжлэхийн дэлгэрэнгүйг авна.
-   * @param id - Нэхэмжлэхийн цорын ганц танигч.
+   * Нэхэмжлэхийн ID-аар нэхэмжлэхийн мэдээлэл авна.
+   * @param id - Нэхэмжлэхийн ID
+   * @returns Нэхэмжлэхийн дэлгэрэнгүй мэдээлэл
    */
   async getInvoice(id: string) {
-    // Нэхэмжлэхийн дэлгэрэнгүйг авах хүсэлтийг илгээнэ.
     return this.sendRequestWithAuth<QPayGetInvoiceResponse>(
       `/v2/invoice/${id}`,
       "get"

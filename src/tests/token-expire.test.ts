@@ -1,10 +1,22 @@
-import { QPAY } from "./qpay.test";
+import QPay from "../main";
+import { invoice_code, password, username } from "../private";
+
+const QPAY = new QPay({
+  username,
+  password,
+  invoice_code,
+});
 
 test("Access token", async () => {
   await QPAY.generateAuthToken();
   expect(QPAY.expiresIn).toBeInstanceOf(Date);
   expect(QPAY.expiresIn).not.toBeNull();
   expect(QPAY.expiresIn!.getTime()).toBeGreaterThan(new Date().getTime());
+  console.log("Access token expires at:", QPAY.expiresIn?.toLocaleString());
+  console.log(
+    "Refresh token expires at:",
+    QPAY.refreshExpiresIn?.toLocaleString()
+  );
 
   expect(QPAY.isAccessTokenExpired()).toBe(false);
 

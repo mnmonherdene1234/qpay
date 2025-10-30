@@ -1,3 +1,3 @@
-export const password = "PASSWORD_HERE";
 export const username = "USERNAME_HERE";
+export const password = "PASSWORD_HERE";
 export const invoice_code = "INVOICE_CODE_HERE";

@@ -1,4 +1,11 @@
-import { QPAY } from "./qpay.test";
+import QPay from "../main";
+import { invoice_code, password, username } from "../private";
+
+const QPAY = new QPay({
+  username,
+  password,
+  invoice_code,
+});
 
 let createdInvoiceID = "";
 
