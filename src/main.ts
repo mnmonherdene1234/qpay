@@ -34,6 +34,7 @@ export class QPay {
     this.username = username;
     this.password = password;
     this.invoiceCode = invoice_code;
+    this.generateAuthToken();
   }
 
   /**
