@@ -11,7 +11,7 @@ import {
  * QPay class нь QPay API-тай харилцан.
  * Энэ нь нэвтрэх токен үүсгэх, шинэчлэх болон API хандалтын үйлдлүүдийг гүйцэтгэнэ.
  */
-class QPay {
+export class QPay {
   // API-ийн тохиргоо болон нэвтрэх мэдээлэл
   private static readonly host = "https://merchant.qpay.mn";
   private static readonly TWO_HOURS_IN_MS = 2 * 60 * 60 * 1000; // Константыг class түвшинд зарлах
@@ -213,5 +213,4 @@ class QPay {
   }
 }
 
-export default QPay;
 export * from "./types";

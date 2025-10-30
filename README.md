@@ -54,7 +54,7 @@ npm install qpay
 QPay API-г ашиглахын тулд эхлээд QPay класын шинэ instance үүсгэх шаардлагатай.
 
 ```typescript
-import QPay from "qpay";
+import { QPay } from "qpay";
 
 const qpay = new QPay({
   username: "EXAMPLE",
@@ -66,7 +66,7 @@ const qpay = new QPay({
 **Аюулгүй байдал:** Хэрэглэгчийн нэр, нууц үг зэрэг мэдээллийг кодонд шууд бичихээс зайлсхийж, environment variables ашиглана уу:
 
 ```typescript
-import QPay from "qpay";
+import { QPay } from "qpay";
 
 const qpay = new QPay({
   username: process.env.QPAY_USERNAME!,
@@ -91,7 +91,7 @@ const qpay = new QPay({
 Нэхэмжлэх үүсгэхийн тулд `createInvoice` функцийг ашиглана. Энэ функц нь нэхэмжлэхийн мэдээллийг агуулсан объект хүлээн авч, үүсгэсэн нэхэмжлэхийн хариуг буцаана.
 
 ```typescript
-import QPay from "qpay";
+import { QPay } from "qpay";
 
 const qpay = new QPay({
   username: process.env.QPAY_USERNAME!,
@@ -130,7 +130,7 @@ try {
 Нэхэмжлэх татахын тулд `getInvoice` функцийг ашиглана. Энэ функц нь нэхэмжлэхийн ID-гаар хайдаг, тухайн нэхэмжлэхийн мэдээллийг буцаана.
 
 ```typescript
-import QPay from "qpay";
+import { QPay } from "qpay";
 
 const qpay = new QPay({
   username: process.env.QPAY_USERNAME!,
@@ -215,7 +215,7 @@ class ExtendedQPay extends QPay {
 Энэ сан нь бүрэн TypeScript дэмжлэгтэй. Бүх төрлүүд автоматаар импорт хийгдэнэ:
 
 ```typescript
-import QPay, { QPayCreateInvoice, QPayCreateInvoiceResponse } from "qpay";
+import { QPay, QPayCreateInvoice, QPayCreateInvoiceResponse } from "qpay";
 
 const qpay = new QPay({
   username: process.env.QPAY_USERNAME!,

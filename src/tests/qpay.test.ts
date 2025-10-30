@@ -1,4 +1,4 @@
-import QPay from "../main";
+import { QPay } from "../main";
 import { invoice_code, password, username } from "../private";
 
 const QPAY = new QPay({
