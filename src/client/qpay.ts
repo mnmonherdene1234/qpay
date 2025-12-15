@@ -4,8 +4,8 @@ import {
   QPayCreateInvoiceResponse,
   QPayGetInvoiceResponse,
   QPayTokenResponse,
-  Setup,
-} from "./types";
+  QPaySetup,
+} from "../types";
 
 /**
  * QPay class нь QPay API-тай харилцан.
@@ -13,13 +13,13 @@ import {
  */
 export class QPay {
   // API-ийн тохиргоо болон нэвтрэх мэдээлэл
-  private static readonly host = "https://merchant.qpay.mn";
-  private static readonly TWO_HOURS_IN_MS = 2 * 60 * 60 * 1000; // Константыг class түвшинд зарлах
+  private static readonly HOST = "https://merchant.qpay.mn";
+  private static readonly TWO_HOURS_IN_MS = 2 * 60 * 60 * 1000;
 
   private username = "";
   private password = "";
   private invoiceCode = "";
-  private tokenRefreshPromise: Promise<void> | null = null; // Token refresh давхцахаас сэргийлэх
+  private tokenRefreshPromise: Promise<void> | null = null;
 
   accessToken = "";
   refreshToken = "";
@@ -30,10 +30,10 @@ export class QPay {
    * QPay класыг шинэ instance үүсгэнэ.
    * @param setup - Хэрэглэгчийн нэр, нууц үг, нэхэмжлэхийн кодыг агуулна.
    */
-  constructor({ username, password, invoice_code }: Setup) {
+  constructor({ username, password, invoiceCode }: QPaySetup) {
     this.username = username;
     this.password = password;
-    this.invoiceCode = invoice_code;
+    this.invoiceCode = invoiceCode;
     this.generateAuthToken();
   }
 
@@ -77,7 +77,7 @@ export class QPay {
     ).toString("base64")}`;
 
     const response = await axios.post<QPayTokenResponse>(
-      `${QPay.host}/v2/auth/token`,
+      `${QPay.HOST}/v2/auth/token`,
       undefined,
       {
         headers: {
@@ -95,7 +95,7 @@ export class QPay {
    */
   async refreshAuthToken(): Promise<void> {
     const response = await axios.post<QPayTokenResponse>(
-      `${QPay.host}/v2/auth/refresh`,
+      `${QPay.HOST}/v2/auth/refresh`,
       undefined,
       {
         headers: {
@@ -157,7 +157,7 @@ export class QPay {
   private async sendRequestWithAuth<T>(
     endpointUrl: string,
     method: "get" | "post" | "put" | "delete",
-    data?: any
+    data?: unknown
   ) {
     await this.checkAuth();
 
@@ -168,7 +168,7 @@ export class QPay {
       },
     };
 
-    const fullUrl = `${QPay.host}${endpointUrl}`;
+    const fullUrl = `${QPay.HOST}${endpointUrl}`;
 
     switch (method) {
       case "get":
@@ -213,5 +213,3 @@ export class QPay {
     );
   }
 }
-
-export * from "./types";

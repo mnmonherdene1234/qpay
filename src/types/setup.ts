@@ -1,5 +1,11 @@
-export type Setup = {
-    username: string;
-    password: string;
-    invoice_code: string;
+/**
+ * QPay API client тохиргооны төрөл
+ */
+export interface QPaySetup {
+  /** QPay хэрэглэгчийн нэр */
+  username: string;
+  /** QPay нууц үг */
+  password: string;
+  /** Нэхэмжлэхийн код */
+  invoiceCode: string;
 }

@@ -1,10 +1,10 @@
-import { QPay } from "../main";
-import { invoice_code, password, username } from "../private";
+import { QPay } from "../../";
+import { invoiceCode, password, username } from "../private";
 
 const QPAY = new QPay({
   username,
   password,
-  invoice_code,
+  invoiceCode,
 });
 
 test("QPay instance creation", () => {
