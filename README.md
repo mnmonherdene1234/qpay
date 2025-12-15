@@ -49,6 +49,23 @@ QPay системийн API-д зориулсан TypeScript/JavaScript сан. 
 npm install qpay
 ```
 
+## Development / Tests
+
+Энэ репо доторх test-үүд нь бодит QPay API руу холбогддог (integration tests). Тиймээс test ажиллуулахын тулд дараах environment variables-уудыг тохируулна:
+
+- `QPAY_USERNAME`
+- `QPAY_PASSWORD`
+- `QPAY_INVOICE_CODE`
+
+Дараа нь:
+
+```bash
+npm test
+```
+
+Хэрэв дээрх хувьсагчууд тохируулаагүй бол test-үүд автоматаар `skipped` болно.
+```
+
 ## Тохиргоо
 
 QPay API-г ашиглахын тулд эхлээд QPay класын шинэ instance үүсгэх шаардлагатай.
